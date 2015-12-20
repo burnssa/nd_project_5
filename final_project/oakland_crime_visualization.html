@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+  <script type="text/javascript" src="http://maps.google.com/maps/api/js"></script>
+  <script src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+
+      html, body, #google_base {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+
+/*      circle {
+        fill: orange;
+        stroke: black;
+        stroke-width: 0.7;
+        opacity: 0.7;
+      }*/
+
+      h2 {
+        text-align: center;
+        color: black;
+      }
+
+/*      div.years_buttons {
+        position: fixed;
+        top: 5px;
+        left: 50px;
+      }
+
+      div.years_buttons div {
+        background-color: rgb(251, 201, 127);
+        padding: 3px;
+        margin: 7px;
+      }*/
+    </style>
+    <script type="text/javascript">  
+      function draw(geo_data) {
+        "use strict";
+        var margin = 100,
+            width = 1400 - margin,
+            height = 1000 - margin;
+
+        d3.select("body")
+            .append("h2")
+            .text("Crime Incidents in Oakland 2007 - 2014")
+
+        var svg = d3.select("body")
+            .append("svg")
+            .attr("width", width + margin)
+            .attr("height", height + margin)
+            .append('g')
+            .attr('class', 'map');
+
+        var google_base = new google.maps.Map(svg.node(), {
+          center: new google.maps.LatLng(center_point),
+          mapTypeId: google.maps.MapTypeId.TERRAIN
+        });
+
+        var overlay = new google.maps.OverlayView();
+
+
+        var years = []; 
+        var i = 0;         
+        for (i = 2007; i < 2015; i++) { 
+            years.push(i);
+        }
+
+        var projection = d3.geo.albers()
+                                .scale(1)
+                                .translate([0,0]);
+
+        var path = d3.geo.path().projection(projection);
+
+        var b = path.bounds(geo_data),
+            s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+            t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+        projection.scale(s).translate(t)
+
+        var center_point = [(b[1][0] - b[0][0]) / 2, (b[1][1] - b[0][1]) / 2]
+
+        debugger;
+
+        var map = google_base.selectAll('path')
+                      .data(geo_data.features)
+                      .enter()
+                      .append('path')
+                      .attr('d', path)
+                      .style('fill', "white")
+                      .style('stroke', 'black')
+                      .style('stroke-width', 0.3);
+
+        debugger;
+
+        function plot_crime_points(data) {
+
+          function key_func(d) {
+            return d['key'];
+          };
+
+          // debugger;
+          var data_by_year = d3.nest()
+                              .key(function(d){
+                                return d['date_format'].slice(0,4);
+                              })
+                              .entries(data);
+
+          function update(year){
+            var filtered = data_by_year.filter(function(d) {
+              return d['key'] == year;
+            });
+
+            d3.select("h2")
+              .text("Crime Incidents in Oakland: " + year)
+
+            var selected_year_crime = filtered[0].values
+
+            var circles = svg.selectAll('circle')
+                .data(selected_year_crime)
+
+            circles.exit().remove();
+
+            circles.enter()
+                .append('circle')
+                .attr("fill", "red")
+                .attr("r", 4)
+                .transition()
+                .duration(500)
+                .attr("transform", function(d) {return "translate(" + projection([d.Lng,d.Lat]) + ")";})
+                .attr('opacity', 0.01);
+
+            };
+
+            var year_idx = 0;
+
+            var year_interval = setInterval(function() {
+              update(years[year_idx]);
+              year_idx++;
+              if(year_idx >= years.length) {
+                clearInterval(year_interval);
+              };
+            });
+
+          // var year_data = 
+            // var coords = map(function(d) {
+            //   return projection([+d., +d.lat]);
+            // });
+
+          // var radius = d3.scale.sqrt()
+          //                       .domain(attendance_extent)
+          //                       .range([0,15])
+
+          // function key_func(d) {
+          //   return d['key'];
+          // };
+
+          // var crime_2015 = d3.nest()
+          //     .key(function(d) {
+          //       return d['date'].getUTCFullYear();
+          //     })
+          //     .rollup(agg_year)
+          //     .entries(data);
+
+              //  , function(d) {
+              //  return radius(d.values['attendance']);
+              //});
+
+        //   function update(year) {
+        //     // var filtered = yearly_data.filter(function(d) {
+        //     //   return new Date(d['key']).getUTCFullYear() === year;
+        //     // });
+
+        //     d3.select("h2")
+        //       .text("World Cup " + year)
+
+        //     var circles = svg.selectAll('circle')
+        //                       .data(filtered, key_func);
+
+        //     circles.exit().remove();
+
+        //     circles.enter()
+        //       .append("circle")
+        //       .attr('fill', 'orange')
+        //       .attr('opacity', 0.7)
+        //       .attr('stroke', 'black')
+        //       .transition()
+        //       .duration(500)
+        //       .attr('cx', function(d){ return d.values['x']; })
+        //       .attr('cy', function(d){ return d.values['y']; })
+        //       .attr('r', function(d) {
+        //         return radius(d.values['attendance']);
+        //       });
+
+        //     var countries = filtered[0].values['teams']
+
+        //     function update_countries(d) {
+        //       if(countries.indexOf(d.properties.name) != -1){
+        //         return "lightBlue";
+        //       } else {
+        //         return 'white';
+        //       }
+        //     }
+
+        //     svg.selectAll('path')
+        //       .transition()
+        //       .duration(500)
+        //       .style('fill', update_countries)
+        //       // .style('stroke', update_countries)
+
+        //   };
+
+        //   var year_idx = 0;
+
+        //   var year_interval = setInterval(function() {
+        //     update(years[year_idx]);
+        //     year_idx++;
+        //     if(year_idx >= years.length) {
+        //       clearInterval(year_interval);
+
+        //       var buttons = d3.select("body")
+        //               .append("div")
+        //               .attr("class", "years_buttons")
+        //               .selectAll("div")
+        //               .data(years)
+        //               .enter()
+        //               .append("div")
+        //               .text(function(d){
+        //                 return d;
+        //               });
+
+        //       buttons.on("click", function(d){
+        //         d3.select(".years_buttons")
+        //           .selectAll("div")
+        //           .transition()
+        //           .duration(500)
+        //           .style("color", "black")
+        //           .style("background", "rgb(251,201,127)")
+
+        //         d3.select(this)
+        //           .transition()
+        //           .duration(500)
+        //           .style("background", "lightBlue")
+        //           .style("color", "white")
+        //         update(d);
+        //       })
+
+        //     }
+        //   }, 1000);
+        };
+
+        // var format = d3.time.format("%d-%m-%Y (%H:%M h)");
+
+        d3.csv("oakland_crimes_clean.csv", function(d) {
+        }, plot_crime_points);
+      };
+      </script>
+  </head>
+<body>
+  <script type="text/javascript">
+  /*
+    Use D3 to load the GeoJSON file
+    */
+    
+  d3.json("neighborhoods.geojson", draw);
+  </script>
+</body>
+</html>

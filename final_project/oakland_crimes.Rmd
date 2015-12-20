@@ -1,0 +1,38 @@
+
+```{r Setting up libraries (a)}
+setwd('/Users/burnssa/sites/data_analyst_nanodegree/nd_project_5/final_project')
+getwd()
+crimes <- read.csv('oakland_crimes.csv')
+summary(crimes) #Output suppressed for final report
+head(crimes) #to illustrate the available fields, with example values
+#Include libraries - all critical to the analysis
+#library(dplyr)
+#library(ggplot2)
+
+```
+
+```{r Remove records with invalid latitude and longitude values}
+crimes <- subset(crimes, (crimes$Lat < 40 & crimes$Lat > 37))
+crimes <- subset(crimes, (crimes$Lng > -123 & crimes$Lng < -122.1 ))
+
+```
+
+```{r Remove records with invalid date values}
+crimes <- subset(crimes, (as.Date(crimes$date_format) < as.Date('2015-08-01')))
+
+```
+
+
+```{r Cleaning up crimes csv}
+#Remove 'NA' rows
+clean_crimes_df <- na.omit(crimes)
+summary(clean_crimes_df)
+head(clean_crimes_df)
+write.csv(clean_crimes_df, file = "oakland_crimes_clean.csv")
+
+```
+
+
+
+
+
