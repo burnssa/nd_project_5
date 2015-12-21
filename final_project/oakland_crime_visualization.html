@@ -4,10 +4,11 @@
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
   <script type="text/javascript" src="http://maps.google.com/maps/api/js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
     <style>
 
-      html, body, #google_base {
+      html, body, #google_map {
         width: 100%;
         height: 100%;
         margin: 0;
@@ -24,6 +25,13 @@
       h2 {
         text-align: center;
         color: black;
+      }
+
+      .SvgOverlay path {
+        stroke: Orange;
+        stroke-width: 2px;
+        fill: Orange;
+        fill-opacity: .3;
       }
 
 /*      div.years_buttons {
@@ -49,53 +57,89 @@
             .append("h2")
             .text("Crime Incidents in Oakland 2007 - 2014")
 
-        var svg = d3.select("body")
-            .append("svg")
-            .attr("width", width + margin)
-            .attr("height", height + margin)
-            .append('g')
-            .attr('class', 'map');
 
-        var google_base = new google.maps.Map(svg.node(), {
-          center: new google.maps.LatLng(center_point),
-          mapTypeId: google.maps.MapTypeId.TERRAIN
-        });
+        // var years = []; 
+        // var i = 0;         
+        // for (i = 2007; i < 2015; i++) { 
+        //     years.push(i);
+        // }
+
+        // var projection = d3.geo.albers()
+        //                         .scale(1)
+        //                         .translate([0,0]);
+
+        // var path = d3.geo.path().projection(projection);
+
+        // var b = path.bounds(geo_data),
+        //     s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+        //     t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+
+        // projection.scale(s).translate(t)
+
+        // var center_point = [(b[1][0] - b[0][0]) / 2, (b[1][1] - b[0][1]) / 2]
 
         var overlay = new google.maps.OverlayView();
 
+        overlay.onAdd = function() {
 
-        var years = []; 
-        var i = 0;         
-        for (i = 2007; i < 2015; i++) { 
-            years.push(i);
-        }
+          var layer = d3.select(this.getPanes().overlayLayer).append("div")
+                        .attr("class", "SvgOverlay");
 
-        var projection = d3.geo.albers()
-                                .scale(1)
-                                .translate([0,0]);
+          var combined_map = layer.append("svg")
+                                  .append("g")
+                                  .attr("class", "Neighborhoods");
 
-        var path = d3.geo.path().projection(projection);
+          overlay.draw = function(){
+            var markerOverlay = this;
+            var overlayProjection = markerOverlay.getProjection();
 
-        var b = path.bounds(geo_data),
-            s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
-            t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+            var projection = d3.geo.albers()
+                                    .scale(1)
+                                    .translate([0,0]);
 
-        projection.scale(s).translate(t)
+            var path = d3.geo.path().projection(projection);
 
-        var center_point = [(b[1][0] - b[0][0]) / 2, (b[1][1] - b[0][1]) / 2]
+            var b = path.bounds(geo_data),
+                s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+                t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
-        debugger;
+            projection.scale(s).translate(t)
 
-        var map = google_base.selectAll('path')
-                      .data(geo_data.features)
-                      .enter()
-                      .append('path')
-                      .attr('d', path)
-                      .style('fill', "white")
-                      .style('stroke', 'black')
-                      .style('stroke-width', 0.3);
 
-        debugger;
+            var i = 0;
+            // debugger;
+            var googleMapProjection = function (coordinates) {
+              var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
+              var pixelCoordinates = overlayProjection.fromLatLngToDivPixel(googleCoordinates);
+              return [pixelCoordinates.x, pixelCoordinates.y]; 
+            }
+
+            path = d3.geo.path().projection(googleMapProjection);
+            combined_map.selectAll("path")
+                        .data(geo_data.features)
+                        .attr("d", path)
+                        .enter().append("svg:path")
+                        .attr("d", path);
+
+            debugger;
+                 
+            // function transform(d){
+            //   d = new google.maps.LatLng(d.)
+            // } 
+
+            // path = d3.geo.path().projection(googleMapProjection);
+            // var map = combined_map.selectAll('path')
+            //   .data(geo_data.features)
+            //   .enter()
+            //   .append('path')
+            //   .attr('d', path)
+
+
+            //   debugger;
+
+          };                        
+        };
+        overlay.setMap(google_base);
 
         function plot_crime_points(data) {
 
@@ -120,7 +164,7 @@
 
             var selected_year_crime = filtered[0].values
 
-            var circles = svg.selectAll('circle')
+            var circles = combined_map.selectAll('circle')
                 .data(selected_year_crime)
 
             circles.exit().remove();
@@ -255,16 +299,29 @@
 
         // var format = d3.time.format("%d-%m-%Y (%H:%M h)");
 
-        d3.csv("oakland_crimes_clean.csv", function(d) {
-        }, plot_crime_points);
+        // d3.csv("oakland_crimes_clean.csv", function(d) {
+        //   return d;
+        // }, plot_crime_points);
       };
       </script>
   </head>
 <body>
+
+  <div id="google_map">
+  </div>
   <script type="text/javascript">
   /*
     Use D3 to load the GeoJSON file
     */
+
+  var google_base = new google.maps.Map(d3.select("#google_map").node(), {
+    zoom: 13,
+    center: new google.maps.LatLng(37.81, -122.26),
+    mapTypeId: google.maps.MapTypeId.ROADMAP,
+    disableDefaultUI: true,
+    zoomControl: false,
+    styles:[{"stylers": [{"saturation": -50},{"lightness": 75}]}]
+  });
     
   d3.json("neighborhoods.geojson", draw);
   </script>
