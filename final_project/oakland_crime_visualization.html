@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
+<!--   <meta charset="utf-8"> -->
   <script type="text/javascript" src="http://maps.google.com/maps/api/js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -27,7 +26,14 @@
         color: black;
       }
 
-      .SvgOverlay path {
+/*      .SvgOverlay path {
+        stroke: Orange;
+        stroke-width: 2px;
+        fill: Orange;
+        fill-opacity: .3;
+      }*/
+
+      .Neighborhoods path {
         stroke: Orange;
         stroke-width: 2px;
         fill: Orange;
@@ -48,15 +54,13 @@
     </style>
     <script type="text/javascript">  
       function draw(geo_data) {
-        "use strict";
         var margin = 100,
             width = 1400 - margin,
             height = 1000 - margin;
 
-        d3.select("body")
-            .append("h2")
-            .text("Crime Incidents in Oakland 2007 - 2014")
-
+        // d3.select("body")
+        //     .append("h2")
+        //     .text("Crime Incidents in Oakland 2007 - 2014")
 
         // var years = []; 
         // var i = 0;         
@@ -64,17 +68,17 @@
         //     years.push(i);
         // }
 
-        // var projection = d3.geo.albers()
-        //                         .scale(1)
-        //                         .translate([0,0]);
+        var projection = d3.geo.albers()
+                                .scale(1)
+                                .translate([0,0]);
 
-        // var path = d3.geo.path().projection(projection);
+        var path = d3.geo.path().projection(projection);
 
-        // var b = path.bounds(geo_data),
-        //     s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
-        //     t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
+        var b = path.bounds(geo_data),
+            s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
+            t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
 
-        // projection.scale(s).translate(t)
+        projection.scale(s).translate(t)
 
         // var center_point = [(b[1][0] - b[0][0]) / 2, (b[1][1] - b[0][1]) / 2]
 
@@ -85,43 +89,30 @@
           var layer = d3.select(this.getPanes().overlayLayer).append("div")
                         .attr("class", "SvgOverlay");
 
-          var combined_map = layer.append("svg")
-                                  .append("g")
-                                  .attr("class", "Neighborhoods");
+          var svg = layer.append("svg");
+          var neighborhoods = svg.append("g").attr("class", "Neighborhoods");
 
           overlay.draw = function(){
             var markerOverlay = this;
             var overlayProjection = markerOverlay.getProjection();
 
-            var projection = d3.geo.albers()
-                                    .scale(1)
-                                    .translate([0,0]);
-
-            var path = d3.geo.path().projection(projection);
-
-            var b = path.bounds(geo_data),
-                s = .95 / Math.max((b[1][0] - b[0][0]) / width, (b[1][1] - b[0][1]) / height),
-                t = [(width - s * (b[1][0] + b[0][0])) / 2, (height - s * (b[1][1] + b[0][1])) / 2];
-
-            projection.scale(s).translate(t)
-
-
-            var i = 0;
-            // debugger;
             var googleMapProjection = function (coordinates) {
               var googleCoordinates = new google.maps.LatLng(coordinates[1], coordinates[0]);
               var pixelCoordinates = overlayProjection.fromLatLngToDivPixel(googleCoordinates);
               return [pixelCoordinates.x, pixelCoordinates.y]; 
-            }
+            };
 
+            // svg.selectAll("path").remove()
             path = d3.geo.path().projection(googleMapProjection);
-            combined_map.selectAll("path")
+            neighborhoods.selectAll("path").remove();
+
+            neighborhoods.selectAll("path")
                         .data(geo_data.features)
                         .attr("d", path)
-                        .enter().append("svg:path")
+                        .enter()
+                        .append("path")
                         .attr("d", path);
 
-            debugger;
                  
             // function transform(d){
             //   d = new google.maps.LatLng(d.)
@@ -164,7 +155,7 @@
 
             var selected_year_crime = filtered[0].values
 
-            var circles = combined_map.selectAll('circle')
+            var circles = neighborhoods.selectAll('circle')
                 .data(selected_year_crime)
 
             circles.exit().remove();
@@ -310,18 +301,19 @@
   <div id="google_map">
   </div>
   <script type="text/javascript">
-  /*
-    Use D3 to load the GeoJSON file
-    */
+    var google_base = new google.maps.Map(d3.select("#google_map").node(), {
+      zoom: 13,
+      center: new google.maps.LatLng(37.81, -122.26),
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true,
+      zoomControl: false,
+      styles:[{"stylers": [{"saturation": -50},{"lightness": 75}]}]
+    });
 
-  var google_base = new google.maps.Map(d3.select("#google_map").node(), {
-    zoom: 13,
-    center: new google.maps.LatLng(37.81, -122.26),
-    mapTypeId: google.maps.MapTypeId.ROADMAP,
-    disableDefaultUI: true,
-    zoomControl: false,
-    styles:[{"stylers": [{"saturation": -50},{"lightness": 75}]}]
-  });
+    var idleListener = google.maps.event.addListener(google_base, 'idle', function() { //important for full map shown 
+      google.maps.event.trigger(google_base, 'resize');
+      google.maps.event.removeListener(idleListener);
+    });
     
   d3.json("neighborhoods.geojson", draw);
   </script>
