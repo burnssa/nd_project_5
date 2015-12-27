@@ -12,17 +12,19 @@ import time
 NEIGHBORHOOD_MAP = 'neighborhoods.geojson'
 IN_CSV = "oakland_crimes_clean.csv"
 OUT_CSV = "oakland_crimes_with_neighborhood.csv"
+GROUPED_CSV = "oakland_crimes_grouped.csv"
 
-def add_neighborhood_labels(crime_csv, polygon_map):
 # load GeoJSON file containing sectors
-	with open(polygon_map, 'r') as f:
-		hoods = json.load(f)
+with open(NEIGHBORHOOD_MAP, 'r') as f:
+	hoods = json.load(f)
 
-	# load crime records as dataframe
-	crimes_df = pd.read_csv(crime_csv)
+# load crime records as dataframe
+crimes_df = pd.read_csv(IN_CSV)
 
+def add_neighborhood_labels(crimes_df, polygon_map):
+	
 	def set_neighborhood_label(lng, lat):
-		for feature in hoods['features']:
+		for feature in polygon_map['features']:
 			polygon = shape(feature['geometry']).buffer(0)
 			try:
 				point = Point(float(lng),float(lat))
@@ -33,9 +35,20 @@ def add_neighborhood_labels(crime_csv, polygon_map):
 				return 'to_review'
 	
 	crimes_df['neighborhood'] = crimes_df.apply(lambda row: set_neighborhood_label(row['Lng'], row['Lat']), axis=1)
-	print crimes_df
 	crimes_df.to_csv(OUT_CSV)
 
 start_time = time.clock()
-add_neighborhood_labels(IN_CSV, NEIGHBORHOOD_MAP)
+# add_neighborhood_labels(crimes_df, hoods)
+
+def create_neighborhood_crimes_df(csv):
+	nb_crimes_df = pd.read_csv(csv)
+	#columns = ['year','category','crimes']
+	nb_crimes_df['year'] = nb_crimes_df['date_format'].apply(lambda x: x[:4])
+	group_columns = ['mainCat','neighborhood','year']
+	grouped_crimes_df = pd.DataFrame({'count': nb_crimes_df.groupby(group_columns).size()}).reset_index()
+	print grouped_crimes_df
+	grouped_crimes_df.to_csv(GROUPED_CSV)
+
+create_neighborhood_crimes_df(OUT_CSV)
+
 print time.clock() - start_time, "seconds"
