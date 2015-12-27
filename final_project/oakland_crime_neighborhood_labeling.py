@@ -7,6 +7,7 @@ import csv
 import glob
 import itertools
 import pandas as pd
+import numpy as np
 import time
 
 NEIGHBORHOOD_MAP = 'neighborhoods.geojson'
@@ -42,11 +43,15 @@ start_time = time.clock()
 
 def create_neighborhood_crimes_df(csv):
 	nb_crimes_df = pd.read_csv(csv)
-	#columns = ['year','category','crimes']
 	nb_crimes_df['year'] = nb_crimes_df['date_format'].apply(lambda x: x[:4])
 	group_columns = ['mainCat','neighborhood','year']
 	grouped_crimes_df = pd.DataFrame({'count': nb_crimes_df.groupby(group_columns).size()}).reset_index()
-	print grouped_crimes_df
+	
+	for neighborhood in set(nb_crimes_df['neighborhood']):
+		for year in set(nb_crimes_df['year']):
+			yearly_total = len(nb_crimes_df[(nb_crimes_df['neighborhood'] == neighborhood) & (nb_crimes_df['year'] == year)])
+			grouped_crimes_df = grouped_crimes_df.append(pd.DataFrame({'mainCat': 'All Categories', 'neighborhood': [neighborhood], 'year':[year], 'count':[yearly_total]}), ignore_index=True)
+	# print grouped_crimes_df[grouped_crimes_df['mainCat'] == 'All Categories']
 	grouped_crimes_df.to_csv(GROUPED_CSV)
 
 create_neighborhood_crimes_df(OUT_CSV)

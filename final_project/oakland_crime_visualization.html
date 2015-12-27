@@ -23,6 +23,18 @@
         opacity: 0.7;
       }*/
 
+      div.category_buttons {
+        position: fixed;
+        top: 5px;
+        left: 50px;
+      }
+
+      div.category_buttons div {
+        background-color: rgb(251, 201, 127);
+        padding: 3px;
+        margin: 7px;
+      }
+
       .neighborhoods {
         fill: none;
       }
@@ -108,59 +120,86 @@
                               })
                               .entries(data);
 
-          function update(year){
-            var filtered = data_by_year.filter(function(d) {
+          function update(year, category){
+            var category = category || 'All Categories';
+
+            function isUniqueValue(value, index, self){
+              return self.indexOf(value) === index;
+            };
+
+            var year_filtered = data_by_year.filter(function(d) {
               return d['key'] == year;
             });
 
+            var selected_year_crime = year_filtered[0].values;
+
+            function getUniqueValues(column){
+              var all_elements = selected_year_crime.map(function(x){ return eval("x."+column);})
+              return all_elements.filter(isUniqueValue);
+            }
+
+            var unique_categories = getUniqueValues('mainCat')
+            var unique_neighborhoods = getUniqueValues('neighborhood')
+
+            //Legacy function, before update to data passed into js
+            // if(category = 'All Categories'){
+            //   var totals = {}, nb, i;
+            //   for(i = 0; i < unique_neighborhoods.length; i++){
+            //     nb = unique_neighborhoods[i];
+            //     var all_categories = selected_year_crime.filter(function(d) {
+            //       return d.neighborhood == nb;
+            //     })
+            //     var total_count = all_categories.map(function(x) { return +x.count });
+            //     var nb_sum = total_count.reduce(function(a, b) { return a + b; });
+            //     selected_year_crime.push({'mainCat': 'All Categories', 'neighborhood': nb, 'year':year, 'count':nb_sum})
+            //   }
+            // }
+            
+            var selected_category_crime = selected_year_crime.filter(function(d) {
+              return d['mainCat'] == category
+            });
+
             d3.select("h2")
-              .text("Crime Incidents in Oakland: " + year);
-
-            var selected_year_crime = filtered[0].values;
-
-            debugger;
+              .text("Crime in Oakland: Reported Incidents - " + category + " in " + year);
 
             //-------Mapping incidence of crime by neighborhood-------//    
 
-            // var all_categories = data.map(function(x){ return x.mainCat });
-            // var all_neighborhoods = data.map(function(x){ return x.mainCat });
-            // function isUniqueValue(value, index, self){
-            //   return self.indexOf(value) === index;
-            // };
+              var buttons = d3.select("body")
+                .append("div")
+                .attr("class", "category_buttons")
+                .selectAll("div")
+                .data(unique_categories)
+                .enter()
+                .append("div")
+                .text(function(d){
+                  return d;
+                });
 
-            // var unique_categories = all_categories.filter(isUniqueValue);
+                buttons.on("click", function(d){
+                  d3.select(".category_buttons")
+                    .selectAll("div")
+                    .transition()
+                    .duration(500)
+                    .style("color", "black")
+                    .style("background", "rgb(251,201,127)")
 
-            // function neighborhoodCrimeRate(category, neighborhood, crimes) {
-            //   var crimes_by_category = crimes.filter(function(x) {
-            //     if(crimes.indexOf(category) < 0){
-            //       return x;
-            //     }
-            //     else {
-            //       return x.mainCat == category;
-            //     }
-            //   });
-            //   var crimes_by_neighborhood = crimes_by_category.filter(function(x){
-
-            //   })
-              
-            //   return crime_category;
-            // };
+                  d3.select(this)
+                    .transition()
+                    .duration(500)
+                  update(year, d);
+              });
 
 
-            var crimes_by_neighborhood = d3.map();
+            var total_crimes_by_neighborhood = d3.map();
 
             var quantize = d3.scale.quantize()
-                .domain([0, 200])
+                .domain([0, 1000])
                 .range(d3.range(9).map(function(i) { return "q" + Math.min(9,i) + "-9"; }));
 
             var neighborhoods = svg.selectAll('path')
-                                    .data(selected_year_crime)
+                                    .data(selected_category_crime)
                                     .attr("class", function(d) { return quantize(+d.count) })
                                     .exit().remove;
-            // neighborhoodCrimeRate('robbery', selected_year_crime)
-
-
-          debugger;
 
             //-------Mapping full catalog of crimes as map points-------//  
             // var circles = svg.selectAll('circle')
@@ -178,16 +217,15 @@
             //     .attr('opacity', 0.01);
           };
 
-          // var year_idx = 0;
+          var year_idx = 0;
 
-          // var year_interval = setInterval(function() {
-          //   update(years[year_idx]);
-          //   year_idx++;
-          //   if(year_idx >= years.length) {
-          //     clearInterval(year_interval);
-          //   };
-          // }, 10);
-          update("2007")
+          var year_interval = setInterval(function() {
+            update(years[year_idx]);
+            year_idx++;
+            if(year_idx >= years.length) {
+              clearInterval(year_interval);
+            };
+          }, 1000);
 
           // function update(year) {
           //   var filtered = yearly_data.filter(function(d) {
