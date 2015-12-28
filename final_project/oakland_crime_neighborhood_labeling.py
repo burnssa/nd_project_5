@@ -39,7 +39,7 @@ def add_neighborhood_labels(crimes_df, polygon_map):
 	crimes_df.to_csv(OUT_CSV)
 
 start_time = time.clock()
-# add_neighborhood_labels(crimes_df, hoods)
+add_neighborhood_labels(crimes_df, hoods)
 
 def create_neighborhood_crimes_df(csv):
 	nb_crimes_df = pd.read_csv(csv)
@@ -54,6 +54,6 @@ def create_neighborhood_crimes_df(csv):
 	# print grouped_crimes_df[grouped_crimes_df['mainCat'] == 'All Categories']
 	grouped_crimes_df.to_csv(GROUPED_CSV)
 
-create_neighborhood_crimes_df(OUT_CSV)
+# create_neighborhood_crimes_df(OUT_CSV)
 
 print time.clock() - start_time, "seconds"

@@ -35,7 +35,19 @@
         margin: 7px;
       }
 
-      .neighborhoods {
+      div.year_buttons {
+        position: relative;
+        top: 5px;
+        left: 50px;
+      }
+
+      div.year_buttons div {
+        background-color: rgb(345, 201, 127);
+        padding: 3px;
+        margin: 7px;
+      }
+
+      .map {
         fill: none;
       }
 
@@ -109,9 +121,27 @@
                       .enter()
                       .append('path')
                       .attr('d', path)
-                      .attr('class', 'neighborhoods')
+                      .attr('id', function(d){
+                        return d.properties.NAME
+                      })
                       .style('stroke', 'black')
                       .style('stroke-width', 0.3);
+
+                  svg.selectAll('text')
+                    .data(geo_data.features)
+                    .enter()
+                    .append("svg:text")
+                      .text(function(d){
+                          return d.properties.NAME;
+                      })
+                      .attr("x", function(d){
+                          return path.centroid(d)[0];
+                      })
+                      .attr("y", function(d){
+                          return  path.centroid(d)[1];
+                      })
+                      .attr("text-anchor","middle")
+                      .attr('font-size','6pt');
 
         function plot_crime_points(data) {
           var data_by_year = d3.nest()
@@ -164,7 +194,7 @@
 
             //-------Mapping incidence of crime by neighborhood-------//    
 
-              var buttons = d3.select("body")
+              var category_buttons = d3.select("body")
                 .append("div")
                 .attr("class", "category_buttons")
                 .selectAll("div")
@@ -175,31 +205,70 @@
                   return d;
                 });
 
-                buttons.on("click", function(d){
-                  d3.select(".category_buttons")
-                    .selectAll("div")
-                    .transition()
-                    .duration(500)
-                    .style("color", "black")
-                    .style("background", "rgb(251,201,127)")
+              category_buttons.on("click", function(d){
+                d3.select(".category_buttons")
+                  .selectAll("div")
+                  .transition()
+                  .duration(500)
+                  .style("color", "black")
+                  .style("background", "rgb(251,201,127)")
 
-                  d3.select(this)
-                    .transition()
-                    .duration(500)
-                  update(year, d);
+                d3.select(this)
+                  .transition()
+                  .duration(500)
+                update(year, d);
               });
 
+              var year_buttons = d3.select("body")
+                .append("div")
+                .attr("class", "year_buttons")
+                .selectAll("div")
+                .data(years)
+                .enter()
+                .append("div")
+                .text(function(d){
+                  return d;
+                });
 
-            var total_crimes_by_neighborhood = d3.map();
+              year_buttons.on("click", function(d){
+                d3.select(".year_buttons")
+                  .selectAll("div")
+                  .transition()
+                  .duration(500)
+                  .style("color", "black")
+                  .style("background", "rgb(23,201,127)")
+
+                d3.select(this)
+                  .transition()
+                  .duration(500)
+                update(d, category);
+              });
+
+            function getMaxOfArray(numArray) {
+              return Math.max.apply(null, numArray);
+            }; 
+
+            var crime_count_array = data.filter(function(d) {
+              return d['mainCat'] == category
+            });
+
+            var max_crimes = getMaxOfArray(crime_count_array.map(function(d){
+              return +d.count
+            }));
+
+            debugger;
+
+            var countByNeighborhood = d3.map();
 
             var quantize = d3.scale.quantize()
-                .domain([0, 1000])
+                .domain([0, max_crimes * 0.4])
                 .range(d3.range(9).map(function(i) { return "q" + Math.min(9,i) + "-9"; }));
 
             var neighborhoods = svg.selectAll('path')
-                                    .data(selected_category_crime)
-                                    .attr("class", function(d) { return quantize(+d.count) })
-                                    .exit().remove;
+                                    .datum(function(d) { return {neighborhood: d3.select(this).attr('id')}; })
+                                    .data(selected_category_crime, function(d){ return d.neighborhood; })
+                                    .attr("class", function(d) { return quantize(+d.count) });
+
 
             //-------Mapping full catalog of crimes as map points-------//  
             // var circles = svg.selectAll('circle')
@@ -226,75 +295,6 @@
               clearInterval(year_interval);
             };
           }, 1000);
-
-          // function update(year) {
-          //   var filtered = yearly_data.filter(function(d) {
-          //     return new Date(d['key']).getUTCFullYear() === year;
-          //   });
-
-          //   var circles = svg.selectAll('circle')
-          //                     .data(filtered, key_func);
-
-          //   circles.exit().remove();
-
-          //   circles.enter()
-          //     .append("circle")
-          //     .attr('fill', 'orange')
-          //     .attr('opacity', 0.7)
-          //     .attr('stroke', 'black')
-          //     .transition()
-          //     .duration(500)
-          //     .attr('cx', function(d){ return d.values['x']; })
-          //     .attr('cy', function(d){ return d.values['y']; })
-          //     .attr('r', function(d) {
-          //       return radius(d.values['attendance']);
-          //     });
-
-          //   svg.selectAll('path')
-          //     .transition()
-          //     .duration(500)
-          //     .style('fill', update_countries)
-          //     // .style('stroke', update_countries)
-
-          // };
-
-          // var year_idx = 0;
-
-          // var year_interval = setInterval(function() {
-          //   update(years[year_idx]);
-          //   year_idx++;
-          //   if(year_idx >= years.length) {
-          //     clearInterval(year_interval);
-
-          //     var buttons = d3.select("body")
-          //             .append("div")
-          //             .attr("class", "years_buttons")
-          //             .selectAll("div")
-          //             .data(years)
-          //             .enter()
-          //             .append("div")
-          //             .text(function(d){
-          //               return d;
-          //             });
-
-          //     buttons.on("click", function(d){
-          //       d3.select(".years_buttons")
-          //         .selectAll("div")
-          //         .transition()
-          //         .duration(500)
-          //         .style("color", "black")
-          //         .style("background", "rgb(251,201,127)")
-
-          //       d3.select(this)
-          //         .transition()
-          //         .duration(500)
-          //         .style("background", "lightBlue")
-          //         .style("color", "white")
-          //       update(d);
-          //     })
-
-          //   }
-          // }, 1000);
         };
 
         var format = d3.time.format("%d-%m-%Y (%H:%M h)");
