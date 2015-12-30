@@ -8,11 +8,12 @@
     <style>
 
       html, body {
-/*        width: 100%;
+        width: 100%;
         height: 100%;
         margin: 0;
         padding: 0;
-*/      /*display: block;
+        font-family: "Courier New", Courier, monospace;
+      /*display: block;
         margin: auto;*/
       }
 
@@ -25,7 +26,7 @@
 
       div.category_buttons {
         position: fixed;
-        top: 5px;
+        top: 100px;
         left: 50px;
       }
 
@@ -36,9 +37,9 @@
       }
 
       div.year_buttons {
-        position: relative;
-        top: 5px;
-        left: 50px;
+        position: fixed;
+        top: 100px;
+        right: 100px;
       }
 
       div.year_buttons div {
@@ -49,6 +50,17 @@
 
       .map {
         fill: none;
+        position: fixed;
+      }
+
+      div.scale {
+        position: relative;
+        margin: 7px;
+      }
+
+      div.scale_marks div {
+        padding: 1px;
+        margin: 1px;
       }
 
       h2 {
@@ -82,12 +94,12 @@
       function draw(geo_data) {
         "use strict";
         var margin = 100,
-            width = 1200 - margin,
-            height = 600 - margin;
+            width = 1400 - margin,
+            height = 700 - margin;
 
         d3.select("#chart")
             .append("h2")
-            .text("Crime Incidents in Oakland 2007 - 2014");
+            .text("Crime in Oakland 2007 - 2014");
 
         var svg = d3.select("#chart")
             .append("svg")
@@ -163,6 +175,17 @@
 
             var selected_year_crime = year_filtered[0].values;
 
+            var scale_bar = d3.select(".scale")
+                .append("div")
+                .attr("class", "category_buttons")
+                .selectAll("div")
+                .data(unique_categories)
+                .enter()
+                .append("div")
+                .text(function(d){
+                  return d;
+                });
+
             function getUniqueValues(column){
               var all_elements = selected_year_crime.map(function(x){ return eval("x."+column);})
               return all_elements.filter(isUniqueValue);
@@ -190,7 +213,7 @@
             });
 
             d3.select("h2")
-              .text("Crime in Oakland: Reported Incidents - " + category + " in " + year);
+              .html("Crime in Oakland <br /> Reported Incidents - " + category + " in " + year);
 
             //-------Mapping incidence of crime by neighborhood-------//    
 
@@ -256,8 +279,6 @@
               return +d.count
             }));
 
-            debugger;
-
             var countByNeighborhood = d3.map();
 
             var quantize = d3.scale.quantize()
@@ -268,6 +289,7 @@
                                     .datum(function(d) { return {neighborhood: d3.select(this).attr('id')}; })
                                     .data(selected_category_crime, function(d){ return d.neighborhood; })
                                     .attr("class", function(d) { return quantize(+d.count) });
+
 
 
             //-------Mapping full catalog of crimes as map points-------//  
