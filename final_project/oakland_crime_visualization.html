@@ -8,10 +8,10 @@
     <style>
 
       html, body {
-        width: 100%;
+/*      width: 100%;
         height: 100%;
         margin: 0;
-        padding: 0;
+        padding: 0;*/
         font-family: "Courier New", Courier, monospace;
       /*display: block;
         margin: auto;*/
@@ -26,8 +26,8 @@
 
       div.category_buttons {
         position: fixed;
-        top: 100px;
-        left: 50px;
+        top: 20%;
+        left: 5%;
       }
 
       div.category_buttons div {
@@ -38,8 +38,8 @@
 
       div.year_buttons {
         position: fixed;
-        top: 100px;
-        right: 100px;
+        top: 20%;
+        left: 80%;
       }
 
       div.year_buttons div {
@@ -48,24 +48,43 @@
         margin: 7px;
       }
 
-      .map {
+/*      .map {
         fill: none;
         position: fixed;
-      }
+      }*/
 
       div.scale {
-        position: relative;
-        margin: 7px;
+        position: fixed;
+        left: 32%;
+        top: 80px;
       }
 
-      div.scale_marks div {
-        padding: 1px;
-        margin: 1px;
+      div.scale div {
+        padding: 0px;
+        margin: 0px;
+        float: left;
+        width: 60px;
+        height: 15px;
       }
 
       h2 {
         /*text-align: center;*/
         color: black;
+      }
+
+      #chart{
+        position: fixed;
+        margin: auto;
+        width: 100%;
+      }
+
+      .main {
+        top: 20%;
+        /*position: relative;*/
+      }
+
+      .scale_text {
+        text-align: left;
       }
 
       .q0-9 { fill:rgb(247,251,255); }
@@ -78,24 +97,14 @@
       .q7-9 { fill:rgb(8,81,156); }
       .q8-9 { fill:rgb(8,48,107); }
 
-/*      div.years_buttons {
-        position: fixed;
-        top: 5px;
-        left: 50px;
-      }
 
-      div.years_buttons div {
-        background-color: rgb(251, 201, 127);
-        padding: 3px;
-        margin: 7px;
-      }*/
     </style>
     <script type="text/javascript">  
       function draw(geo_data) {
         "use strict";
-        var margin = 100,
-            width = 1400 - margin,
-            height = 700 - margin;
+        var margin = 0,
+            width = 700 - margin,
+            height = 600 - margin;
 
         d3.select("#chart")
             .append("h2")
@@ -103,6 +112,7 @@
 
         var svg = d3.select("#chart")
             .append("svg")
+            .attr('class', 'main')
             .attr("width", width + margin)
             .attr("height", height + margin)
             .append('g')
@@ -175,17 +185,6 @@
 
             var selected_year_crime = year_filtered[0].values;
 
-            var scale_bar = d3.select(".scale")
-                .append("div")
-                .attr("class", "category_buttons")
-                .selectAll("div")
-                .data(unique_categories)
-                .enter()
-                .append("div")
-                .text(function(d){
-                  return d;
-                });
-
             function getUniqueValues(column){
               var all_elements = selected_year_crime.map(function(x){ return eval("x."+column);})
               return all_elements.filter(isUniqueValue);
@@ -217,12 +216,17 @@
 
             //-------Mapping incidence of crime by neighborhood-------//    
 
-              var category_buttons = d3.select("body")
+              d3.select('.category_buttons').remove()
+
+              var category_buttons = d3.select("#chart")
                 .append("div")
                 .attr("class", "category_buttons")
                 .selectAll("div")
                 .data(unique_categories)
-                .enter()
+                
+              category_buttons.exit().remove()
+
+              category_buttons.enter()
                 .append("div")
                 .text(function(d){
                   return d;
@@ -242,12 +246,17 @@
                 update(year, d);
               });
 
-              var year_buttons = d3.select("body")
+              d3.select('.year_buttons').remove()
+
+              var year_buttons = d3.select("#chart")
                 .append("div")
                 .attr("class", "year_buttons")
                 .selectAll("div")
                 .data(years)
-                .enter()
+                
+                year_buttons.exit().remove();
+
+                year_buttons.enter()
                 .append("div")
                 .text(function(d){
                   return d;
@@ -290,6 +299,61 @@
                                     .data(selected_category_crime, function(d){ return d.neighborhood; })
                                     .attr("class", function(d) { return quantize(+d.count) });
 
+            var dom = quantize.domain(),
+              l = (dom[1] - dom[0])/quantize.range().length,
+              breaks = d3.range(0, quantize.range().length).map(function(i) { return Math.floor(i * l); });
+
+            var bin_num = 9;
+
+            function map_to_scale(bins, year){
+              var scale_range = [];
+              for(i = 0; i < bins; i++){
+                var klass = "q" + i + "-9",
+                 bin = breaks[i];
+                scale_range.push({'klass' : klass, 'bin' : bin, 'year' : year })
+              };
+              return scale_range;
+            }
+
+            var bin_max = getMaxOfArray(map_to_scale(bin_num, year).map(function(d){return d.bin}));
+            
+            d3.selectAll('.scale').remove()
+
+            var scale_bar = d3.select("#chart")
+                .append("div")
+                .attr("class", "scale")
+                .selectAll("div")
+                .data(map_to_scale(bin_num, year))
+                .enter()
+                .append('div');
+
+            // var scale_element = scale_bar.append("svg") 
+            //     .attr("width", 60)
+            //     .attr("height", 10);
+
+                // .attr('transform', 'translate(83,83');
+
+              scale_bar
+                .append('svg')
+                .attr('height', '10px')
+                .append("rect")
+                .attr("class", function(d) { return d.klass; } )
+                .attr("width", 60)
+                .attr("height", 10);
+
+            scale_bar.append("text")
+                .text(function(d){
+                  if(d.bin == bin_max){
+                    return d.bin + "+ "
+                  }else{
+                    return d.bin + "  "; 
+                  }
+                })
+                .selectAll('text')
+                .attr('font-size','12pt')
+                .attr('dy', '100em')
+                .attr('dx', '400em')
+                .style('text-anchor', 'start');
 
 
             //-------Mapping full catalog of crimes as map points-------//  
