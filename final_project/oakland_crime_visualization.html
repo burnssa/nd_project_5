@@ -8,13 +8,9 @@
     <style>
 
       html, body {
-/*      width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;*/
         font-family: "Courier New", Courier, monospace;
-      /*display: block;
-        margin: auto;*/
+        display: block;
+        margin: auto;
       }
 
 /*      circle {
@@ -26,36 +22,35 @@
 
       div.category_buttons {
         position: fixed;
-        top: 20%;
+        top: 25%;
         left: 5%;
       }
 
       div.category_buttons div {
-        background-color: rgb(251, 201, 127);
+        background-color: rgb(253,174,107);
         padding: 3px;
         margin: 7px;
+        cursor: pointer;
       }
 
       div.year_buttons {
         position: fixed;
-        top: 20%;
+        top: 25%;
         left: 80%;
       }
 
       div.year_buttons div {
-        background-color: rgb(345, 201, 127);
+        background-color: rgb(253,174,107);
         padding: 3px;
         margin: 7px;
+        cursor: pointer;
       }
 
-/*      .map {
-        fill: none;
-        position: fixed;
-      }*/
-
       div.scale {
-        position: absolute;
-        left: 31%;
+        position: fixed;
+        width: 100%;
+        left: 30%;
+        /*left: 20%;*/
         top: 80px;
       }
 
@@ -65,25 +60,31 @@
         height: 15px;
       }
 
+      div.nb_legend {
+        position: fixed;
+        left: 25%;
+        top: 400px;
+        color: red; 
+      }
+
       h2 {
         /*text-align: center;*/
         color: black;
       }
 
       #chart{
-        position: fixed;
-        margin: auto;
+        /*margin: auto;*/
         width: 100%;
         height: 100%;
       }
 
       .main {
-        top: 20%;
-        /*position: relative;*/
+        top: 25px;
+        position: relative;
       }
 
       .scale_text {
-        text-align: left;
+        /*text-align: left;*/
       }
 
       .q0-9 { fill:rgb(247,251,255); }
@@ -103,7 +104,7 @@
         "use strict";
         var margin = 0,
             width = 700 - margin,
-            height = 600 - margin;
+            height = 550 - margin;
 
         d3.select("#chart")
             .append("h2")
@@ -135,8 +136,6 @@
 
         projection.scale(s).translate(t)
 
-        // var center_point = [(b[1][0] - b[0][0]) / 2, (b[1][1] - b[0][1]) / 2]
-
         var map = svg.selectAll('path')
                       .data(geo_data.features)
                       .enter()
@@ -149,21 +148,33 @@
                       .style('stroke-width', 0.3);
 
                   map.on("mouseover", function(d){
-                    d3.select(this).data(this.__data__)
-                        .enter()
-                        .append("svg:title")
-                          .text(function(d){
-                              return d.neighborhood;
-                          })
-                          .attr("x", function(){
-                              return 100;
-                          })
-                          .attr("y", function(){
-                              return 200;
-                          })
-                          .attr("text-anchor","middle")
-                          .attr('font-size','100pt');
-                          debugger;
+                    d3.select('.nb_legend').remove()
+
+                    function text_label(d){ 
+                      if(d.count == undefined){
+                        return "No Data";
+                      }else{
+                        return d.neighborhood + " - </br> " + d.count + " incidents in " + d.year;
+                      };
+                    };
+
+                    var label = d3.select('#chart')
+                                  .append("div")
+                                  .attr("class", "nb_legend")
+                                    .append("text")
+                                    .html(text_label(d))
+                                    .attr("text-anchor","middle");
+                    // debugger;
+                    d3.select(this)
+                      .style("stroke", "#31a354")
+                      .style("stroke-width", "5")
+
+                  })
+
+                  map.on("mouseout", function(d){ 
+                    d3.select(this)
+                      .style('stroke', 'black')
+                      .style('stroke-width', 0.3);
                   })
 
 
@@ -267,7 +278,6 @@
               year_buttons.on("click", function(d){
                 d3.select(".year_buttons")
                   .selectAll("div")
-v
                   .style("color", "black")
                   .style("background", "rgb(23,201,127)")
 
@@ -327,12 +337,6 @@ v
                 .data(map_to_scale(bin_num, year))
                 .enter()
                 .append('div');
-
-            // var scale_element = scale_bar.append("svg") 
-            //     .attr("width", 60)
-            //     .attr("height", 10);
-
-                // .attr('transform', 'translate(83,83');
 
               scale_bar
                 .append('svg')
