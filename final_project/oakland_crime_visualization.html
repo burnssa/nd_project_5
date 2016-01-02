@@ -54,14 +54,12 @@
       }*/
 
       div.scale {
-        position: fixed;
-        left: 32%;
+        position: absolute;
+        left: 31%;
         top: 80px;
       }
 
       div.scale div {
-        padding: 0px;
-        margin: 0px;
         float: left;
         width: 60px;
         height: 15px;
@@ -76,6 +74,7 @@
         position: fixed;
         margin: auto;
         width: 100%;
+        height: 100%;
       }
 
       .main {
@@ -149,21 +148,24 @@
                       .style('stroke', 'black')
                       .style('stroke-width', 0.3);
 
-                  svg.selectAll('text')
-                    .data(geo_data.features)
-                    .enter()
-                    .append("svg:text")
-                      .text(function(d){
-                          return d.properties.NAME;
-                      })
-                      .attr("x", function(d){
-                          return path.centroid(d)[0];
-                      })
-                      .attr("y", function(d){
-                          return  path.centroid(d)[1];
-                      })
-                      .attr("text-anchor","middle")
-                      .attr('font-size','6pt');
+                  map.on("mouseover", function(d){
+                    d3.select(this).data(this.__data__)
+                        .enter()
+                        .append("svg:title")
+                          .text(function(d){
+                              return d.neighborhood;
+                          })
+                          .attr("x", function(){
+                              return 100;
+                          })
+                          .attr("y", function(){
+                              return 200;
+                          })
+                          .attr("text-anchor","middle")
+                          .attr('font-size','100pt');
+                          debugger;
+                  })
+
 
         function plot_crime_points(data) {
           var data_by_year = d3.nest()
@@ -265,8 +267,7 @@
               year_buttons.on("click", function(d){
                 d3.select(".year_buttons")
                   .selectAll("div")
-                  .transition()
-                  .duration(500)
+v
                   .style("color", "black")
                   .style("background", "rgb(23,201,127)")
 
@@ -385,7 +386,7 @@
 
         var format = d3.time.format("%d-%m-%Y (%H:%M h)");
 
-        d3.csv("oakland_crimes_grouped.csv", function(d) {
+        d3.csv("data/oakland_crimes_grouped.csv", function(d) {
           return d;
         }, plot_crime_points);
       };
@@ -397,7 +398,7 @@
     Use D3 to load the GeoJSON file
     */
     
-  d3.json("neighborhoods.geojson", draw);
+  d3.json("data/neighborhoods.geojson", draw);
   </script>
   <div id="chart" align="center">
   </div>
