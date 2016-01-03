@@ -13,7 +13,7 @@
         margin: auto;
       }
 
-/*      circle {
+      /* circle {
         fill: orange;
         stroke: black;
         stroke-width: 0.7;
@@ -50,7 +50,6 @@
         position: fixed;
         width: 100%;
         left: 30%;
-        /*left: 20%;*/
         top: 80px;
       }
 
@@ -62,14 +61,20 @@
 
       div.nb_legend {
         position: fixed;
-        left: 25%;
+        left: 22%;
         top: 400px;
         color: red; 
+        font-size: 12pt;
       }
 
       h2 {
-        /*text-align: center;*/
         color: black;
+      }
+
+      #footnote {
+        font-size: 11px; 
+        bottom: 10px;
+        margin: 20px;
       }
 
       #chart{
@@ -136,6 +141,7 @@
 
         projection.scale(s).translate(t)
 
+        //Draw neighborhood paths
         var map = svg.selectAll('path')
                       .data(geo_data.features)
                       .enter()
@@ -147,6 +153,7 @@
                       .style('stroke', 'black')
                       .style('stroke-width', 0.3);
 
+        //Highlight neighborhoods on mouseover
                   map.on("mouseover", function(d){
                     d3.select('.nb_legend').remove()
 
@@ -162,15 +169,13 @@
                                   .append("div")
                                   .attr("class", "nb_legend")
                                     .append("text")
-                                    .html(text_label(d))
-                                    .attr("text-anchor","middle");
-                    // debugger;
+                                    .html(text_label(d));
+
                     d3.select(this)
                       .style("stroke", "#31a354")
                       .style("stroke-width", "5")
 
                   })
-
                   map.on("mouseout", function(d){ 
                     d3.select(this)
                       .style('stroke', 'black')
@@ -246,12 +251,11 @@
                 });
 
               category_buttons.on("click", function(d){
+                d3.select(".nb_legend").remove()
                 d3.select(".category_buttons")
                   .selectAll("div")
                   .transition()
                   .duration(500)
-                  .style("color", "black")
-                  .style("background", "rgb(251,201,127)")
 
                 d3.select(this)
                   .transition()
@@ -273,13 +277,13 @@
                 .append("div")
                 .text(function(d){
                   return d;
-                });
+                })
+                .style("background", function(d) { return (d == '2007' || d == '2014') ? "rgb(253,174,107)" : "rgb(254, 232, 200)"; });
 
               year_buttons.on("click", function(d){
+                d3.select(".nb_legend").remove()
                 d3.select(".year_buttons")
                   .selectAll("div")
-                  .style("color", "black")
-                  .style("background", "rgb(23,201,127)")
 
                 d3.select(this)
                   .transition()
@@ -314,6 +318,7 @@
               l = (dom[1] - dom[0])/quantize.range().length,
               breaks = d3.range(0, quantize.range().length).map(function(i) { return Math.floor(i * l); });
 
+            //For number of bins in scale legend
             var bin_num = 9;
 
             function map_to_scale(bins, year){
@@ -351,7 +356,7 @@
                   if(d.bin == bin_max){
                     return d.bin + "+ "
                   }else{
-                    return d.bin + "  "; 
+                    return d.bin + " -"; 
                   }
                 })
                 .selectAll('text')
@@ -359,7 +364,6 @@
                 .attr('dy', '100em')
                 .attr('dx', '400em')
                 .style('text-anchor', 'start');
-
 
             //-------Mapping full catalog of crimes as map points-------//  
             // var circles = svg.selectAll('circle')
@@ -405,6 +409,13 @@
   d3.json("data/neighborhoods.geojson", draw);
   </script>
   <div id="chart" align="center">
+  </div>
+  <div id="footnote" align="left">
+    <h4>
+      Data courtesy of <a href="https://www.openoakland.org/">OpenOakland.org</a> and the Oakland Police Department, available <a href="http://data.openoakland.org/dataset/crime-reports/resource/49bee847-a9b7-4e71-84d8-3f4cabb26cf0">here</a>. Choropleth inspired by Mike Bostock's work <a href="http://bl.ocks.org/mbostock/4060606">here</a>.
+    </h4>
+    <h5>
+      Listed crime categories correspond to those used in the OpenOakland dataset. As background, the 'quality_of_life' class includes crimes related to somewhat more minor violations including 'curfew-loitering', vandalism, drug possession and incidents related to public liquor consumption. 'other' includes crimes not covered by categories in the featured list.
   </div>
 </body>
 </html>
