@@ -1,11 +1,13 @@
 ##Summary 
-From 2007 to 2014 the number of reported crimes fell substantially in Oakland, California - a city commonly associated with violence and crime. This choropleth highlights how Oakland's crime rate evolved over this period, in each of the city's neighborhoods, for some of the most common types of crime. Through the broad 'lightening' of most neighborhoods across the city (aside from a 'darker' spike in 2012), the viewer can sense the 
+From 2007 to 2014 the number of reported crimes fell substantially in Oakland, California - a city commonly associated with violence and crime. This choropleth highlights how Oakland's crime rate evolved over this period, in each of the city's neighborhoods, for some of the most common types of crime. Through the broad 'lightening' of most neighborhoods across the city (aside from a 'darker' spike in 2012), the viewer can grasp the general decline in crime rates, while still being aware of crime's geographical distribution, and the uneven crime dynamics across neighborhoods, via the map's varied saturation.
 
 The chart's neighborhoods are as defined in the GeoJson files kindly shared by Max Ogden [here](https://github.com/maxogden/oakland-boundaries-geojson). Crime incidents are taken from the [OpenOakland](www.openoakland.org) [database here](http://data.openoakland.org/dataset/crime-reports/resource/49bee847-a9b7-4e71-84d8-3f4cabb26cf0).
 
 ##Design
 
-The chart incorporates a 'martini-glass' structure, with an initial author-driven narrative highlighted by changes in color saturation for each neighborhood corresponding to crime report frequency from 2007 to 2014. Once the chart animation reaches the most recent year in the data set, the user is free to construct his or her own narratives, and explore changes between various years for any given crime category, by selecting from columns and buttons. Similarly the user can compare neighborhood crime rates by hovering on any given neighborhood and seeing the number of incidents recorded for that type of crime in the currently selected year.
+The chart incorporates a 'martini-glass' structure, with an initial author-driven narrative highlighted by changes in color saturation for each neighborhood corresponding to crime report frequency from 2007 to 2014. Once the chart animation reaches the most recent year in the data set, the user is free to construct his or her own narratives, and explore changes between various years for any given crime category. Similarly the user can compare neighborhood crime rates by hovering on any given neighborhood and seeing the number of incidents recorded for that type of crime in the currently selected year.
+
+After gathering user feedback, I perceived that viewers might not be seeing the general reduction in crime from 2007 to 2014, or have a clear perception of the absolute rates in particular neighborhoods. To address these concerns, I added code allowing the viewer to select neighborhoods on mouseover and reveal exact crime incident counts for the neighborhood and category in a given year. Furthermore, I chose to highlight the first and last year buttons with more saturated backgrounds, as a way of 'nudging' users to toggle between these years and see the massive general drop in crime rates for the whole period.
 
 ##Feedback
 
@@ -65,7 +67,7 @@ After collecting reviewer feedback, I made the following changes to the visualiz
 * Used pointer cursor for mouseover of year and category buttons indicating they are clickable
 * Recentered scale legend
 * Added explanation of some crime categories and data source reference in footnote
-* Lightened saturation of buttons for interim years (between 2007 and 2014), guiding users to toggle between end and beginning years to see stark difference in crime concentration
+* Lightened saturation of buttons for interim years (between 2007 and 2014), guiding users to toggle between end and beginning years to see stark difference in period crime rates
 
 
 ##Resources
