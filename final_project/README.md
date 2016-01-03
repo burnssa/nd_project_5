@@ -59,13 +59,13 @@ The chart incorporates a 'martini-glass' structure, with an initial author-drive
 
 #### Post-feedback updates
 
-Following reviewer feedback, I made the following changes to the visualization:
+After collecting reviewer feedback, I made the following changes to the visualization:
 * Included ability to highlight specific neighborhoods with mouseover 
 * Featured text with selected neighborhood name and neighborhood/category crime count for year (removed on year or category selection)
-* Pointer cursor for mouseover of year and category buttons indicating they are clickable
+* Used pointer cursor for mouseover of year and category buttons indicating they are clickable
 * Recentered scale legend
 * Added explanation of some crime categories and data source reference in footnote
-* Lightened saturation of buttons for interim years (between 2007 and 2014), to nudge users to toggle between end and beginning to see stark difference in crime concentration
+* Lightened saturation of buttons for interim years (between 2007 and 2014), guiding users to toggle between end and beginning years to see stark difference in crime concentration
 
 
 ##Resources
