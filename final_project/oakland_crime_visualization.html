@@ -250,7 +250,6 @@
               for (i = 0; i < years.length; i++){
                 var yearly_crime = data_by_year.find(function(d){ return d.key == years[i]});
                 var category_crime = getCategoryCrimes(yearly_crime.values);
-                debugger;
                 var total = category_crime.map(function(d) { return +d.count; }).reduce((a, b) => a + b, 0);
                 total_crime_object.push({'year' : years[i], 'crimes' : total })
               };
@@ -296,7 +295,6 @@
             d3.select('.year_buttons').remove()
 
             //Add buttons to select shown crime incidence by year
-            debugger;
             var total_annual_crimes = total_crime().map(function(d){ return d.crimes; });
             var category_max = getMaxOfArray(total_annual_crimes);
             var max_button_width = 220;
