@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="initial-scale=1.0, user-scalable=no"/>
-  <script type="text/javascript" src="http://maps.google.com/maps/api/js"></script>
   <script src="http://d3js.org/d3.v3.min.js"></script>
     <style>
 
@@ -12,13 +11,6 @@
         display: block;
         margin: auto;
       }
-
-      /* circle {
-        fill: orange;
-        stroke: black;
-        stroke-width: 0.7;
-        opacity: 0.7;
-      }*/
 
       div.category_buttons {
         position: fixed;
@@ -35,8 +27,9 @@
 
       div.year_buttons {
         position: fixed;
+        text-align: left;
         top: 25%;
-        left: 80%;
+        left: 75%;
       }
 
       div.year_buttons div {
@@ -78,9 +71,24 @@
       }
 
       #chart{
-        /*margin: auto;*/
         width: 100%;
         height: 100%;
+      }
+
+      .year_instructions {
+        position: fixed;
+        top: 20%;
+        font-size: 10px;
+        left: 75%;
+        margin: 7px;
+      }
+
+      .category_instructions {
+        position: fixed;
+        top: 20%;
+        font-size: 10px;
+        left: 5%;
+        margin: 7px;
       }
 
       .main {
@@ -88,10 +96,7 @@
         position: relative;
       }
 
-      .scale_text {
-        /*text-align: left;*/
-      }
-
+      /*Choropleth scale taken from example here: http://bl.ocks.org/mbostock/4060606*/
       .q0-9 { fill:rgb(247,251,255); }
       .q1-9 { fill:rgb(222,235,247); }
       .q2-9 { fill:rgb(198,219,239); }
@@ -105,15 +110,16 @@
 
     </style>
     <script type="text/javascript">  
+      // Set up chart frame
       function draw(geo_data) {
         "use strict";
         var margin = 0,
-            width = 700 - margin,
-            height = 550 - margin;
+            width = 680 - margin,
+            height = 520 - margin;
 
-        d3.select("#chart")
-            .append("h2")
-            .text("Crime in Oakland 2007 - 2014");
+        var title = d3.select("#chart")
+                      .append("h2")
+                      .text("Crime in Oakland 2007 - 2014");
 
         var svg = d3.select("#chart")
             .append("svg")
@@ -123,12 +129,14 @@
             .append('g')
             .attr('class', 'map');
 
+        // Years to be used in animation and map data selection
         var years = []; 
         var i = 0;         
         for (i = 2007; i < 2015; i++) { 
             years.push(i);
         }
 
+        // Translate coordinates to map within chart frame
         var projection = d3.geo.albers()
                                 .scale(1)
                                 .translate([0,0]);
@@ -141,7 +149,7 @@
 
         projection.scale(s).translate(t)
 
-        //Draw neighborhood paths
+        //-------------Draw neighborhood paths-----------------//
         var map = svg.selectAll('path')
                       .data(geo_data.features)
                       .enter()
@@ -153,18 +161,22 @@
                       .style('stroke', 'black')
                       .style('stroke-width', 0.3);
 
-        //Highlight neighborhoods on mouseover
+                  //Highlight neighborhoods on mouseover
                   map.on("mouseover", function(d){
                     d3.select('.nb_legend').remove()
+
+                    // Pluralize names according to crime count
+                    function pluralized_incidents(d) { return (d.count == 1) ? "incident" : "incidents"; }
 
                     function text_label(d){ 
                       if(d.count == undefined){
                         return "No Data";
                       }else{
-                        return d.neighborhood + " - </br> " + d.count + " incidents in " + d.year;
+                        return d.neighborhood + " - </br> " + d.count + " " + pluralized_incidents(d) + " in " + d.year;
                       };
                     };
 
+                    //Highlight neighborhood and show neighborhod data on mouseover
                     var label = d3.select('#chart')
                                   .append("div")
                                   .attr("class", "nb_legend")
@@ -182,7 +194,7 @@
                       .style('stroke-width', 0.3);
                   })
 
-
+        // Fill neighborhood boundaries with color based on crime incidents         
         function plot_crime_points(data) {
           var data_by_year = d3.nest()
                               .key(function(d){
@@ -190,12 +202,19 @@
                               })
                               .entries(data);
 
+          function map_to_scale(bins, year){
+              var scale_range = [];
+              for(i = 0; i < bins; i++){
+                var klass = "q" + i + "-9",
+                 bin = breaks[i];
+                scale_range.push({'klass' : klass, 'bin' : bin, 'year' : year })
+              };
+              return scale_range;
+            }
+
+          // --------------- Update chart according to category and year selected -------------------- //
           function update(year, category){
             var category = category || 'All Categories';
-
-            function isUniqueValue(value, index, self){
-              return self.indexOf(value) === index;
-            };
 
             var year_filtered = data_by_year.filter(function(d) {
               return d['key'] == year;
@@ -203,94 +222,157 @@
 
             var selected_year_crime = year_filtered[0].values;
 
+            // Identify unique categories for selection boxes
+            function isUniqueValue(value, index, self){
+              return self.indexOf(value) === index;
+            };
+
             function getUniqueValues(column){
               var all_elements = selected_year_crime.map(function(x){ return eval("x."+column);})
               return all_elements.filter(isUniqueValue);
-            }
+            };
 
             var unique_categories = getUniqueValues('mainCat')
-            var unique_neighborhoods = getUniqueValues('neighborhood')
-
-            //Legacy function, before update to data passed into js
-            // if(category = 'All Categories'){
-            //   var totals = {}, nb, i;
-            //   for(i = 0; i < unique_neighborhoods.length; i++){
-            //     nb = unique_neighborhoods[i];
-            //     var all_categories = selected_year_crime.filter(function(d) {
-            //       return d.neighborhood == nb;
-            //     })
-            //     var total_count = all_categories.map(function(x) { return +x.count });
-            //     var nb_sum = total_count.reduce(function(a, b) { return a + b; });
-            //     selected_year_crime.push({'mainCat': 'All Categories', 'neighborhood': nb, 'year':year, 'count':nb_sum})
-            //   }
-            // }
             
-            var selected_category_crime = selected_year_crime.filter(function(d) {
-              return d['mainCat'] == category
-            });
+            function getCategoryCrimes(crime_array){
+              var cat_crimes = crime_array.filter(function(d){
+                return d['mainCat'] == category;  
+              });
+              return cat_crimes;
+            };
+
+            //Set selected category variable for neighborhood coloring by crime incidence
+            var selected_category_crime = getCategoryCrimes(selected_year_crime);
+
+            //Define object with total crime count and year for yearly button div data                     
+            function total_crime() {
+              var total_crime_object = [];
+              for (i = 0; i < years.length; i++){
+                var yearly_crime = data_by_year.find(function(d){ return d.key == years[i]});
+                var category_crime = getCategoryCrimes(yearly_crime.values);
+                debugger;
+                var total = category_crime.map(function(d) { return +d.count; }).reduce((a, b) => a + b, 0);
+                total_crime_object.push({'year' : years[i], 'crimes' : total })
+              };
+              return total_crime_object; 
+            }; 
 
             d3.select("h2")
               .html("Crime in Oakland <br /> Reported Incidents - " + category + " in " + year);
 
-            //-------Mapping incidence of crime by neighborhood-------//    
+            //-----------------Map incidence of crime by neighborhood----------------//    
 
-              d3.select('.category_buttons').remove()
+            d3.select('.category_buttons').remove()
 
-              var category_buttons = d3.select("#chart")
-                .append("div")
-                .attr("class", "category_buttons")
-                .selectAll("div")
-                .data(unique_categories)
-                
-              category_buttons.exit().remove()
+            //Add buttons to select shown crime incidence by category
+            var category_buttons = d3.select("#chart")
+              .append("div")
+              .attr("class", "category_buttons")
+              .selectAll("div")
+              .data(unique_categories)
+              
+            category_buttons.exit().remove()
 
-              category_buttons.enter()
-                .append("div")
-                .text(function(d){
-                  return d;
-                });
-
-              category_buttons.on("click", function(d){
-                d3.select(".nb_legend").remove()
-                d3.select(".category_buttons")
-                  .selectAll("div")
-                  .transition()
-                  .duration(500)
-
-                d3.select(this)
-                  .transition()
-                  .duration(500)
-                update(year, d);
+            category_buttons.enter()
+              .append("div")
+              .text(function(d){
+                return d;
               });
 
-              d3.select('.year_buttons').remove()
-
-              var year_buttons = d3.select("#chart")
-                .append("div")
-                .attr("class", "year_buttons")
+            category_buttons.on("click", function(d){
+              d3.select(".nb_legend").remove()
+              d3.select(".category_buttons")
                 .selectAll("div")
-                .data(years)
-                
-                year_buttons.exit().remove();
+                .transition()
+                .duration(500)
 
-                year_buttons.enter()
+              d3.select(this)
+                .transition()
+                .duration(500)
+              update(year, d);
+            });
+
+            //remove to avoid repitition on update
+            d3.select('.year_buttons').remove()
+
+            //Add buttons to select shown crime incidence by year
+            debugger;
+            var total_annual_crimes = total_crime().map(function(d){ return d.crimes; });
+            var category_max = getMaxOfArray(total_annual_crimes);
+            var max_button_width = 220;
+
+            var year_buttons = d3.select("#chart")
+              .append("div")
+              .attr("class", "year_buttons")
+              .selectAll("div")
+              .data(total_crime());
+
+              year_buttons.exit().remove();
+              
+              //Set button size according to total annual crime incidents
+              year_buttons.enter()
+              .append("div")
+              .text(function(d){
+                return d.year;
+              })
+              .style("background", function(d) { return (d.year == '2007' || d.year == '2014') ? "rgb(253,174,107)" : "rgb(254, 232, 200)"; })
+              .style("width", function(d) { return (d.crimes / category_max) * max_button_width + "px" });
+
+            var year_total = d3.select(".year_buttons");
+                                
+            year_total.append("svg")
+                      .attr("height", "5px")
+                      .append("rect")
+                      .attr("width", max_button_width + "px")
+                      .attr("height", "1px")
+                      .attr("x", "7px");
+
+            var formatter = d3.format(",")
+            var max_label = year_total.append("g")
+                                        .attr("class", "max_label")
+                                        .style("font-size", "15px")
+                                        .style("float", "left")
+                                        .style("margin-left", "7px");
+
+                max_label.append("text")
+                            .text("Incidents - Annual Max: ");
+                      
+                max_label.append("text")          
+                            .text(formatter(category_max))
+                            .style("text-align", "right");
+
+            
+            //remove to avoid repitition on update
+            d3.select('.year_instructions').remove()
+
+            //Add prompt to click on year buttons
+            d3.select("#chart")
                 .append("div")
-                .text(function(d){
-                  return d;
-                })
-                .style("background", function(d) { return (d == '2007' || d == '2014') ? "rgb(253,174,107)" : "rgb(254, 232, 200)"; });
+                .attr("class", "year_instructions")
+                .text("Click to select year:");
 
-              year_buttons.on("click", function(d){
-                d3.select(".nb_legend").remove()
-                d3.select(".year_buttons")
-                  .selectAll("div")
+            //remove to avoid repitition on update
+            d3.select('.category_instructions').remove()
 
-                d3.select(this)
-                  .transition()
-                  .duration(500)
-                update(d, category);
-              });
+            //Add prompt to click on category buttons
+            d3.select("#chart")
+                .append("div")
+                .attr("class", "category_instructions")
+                .text("Click to select category:");
+                            
+            year_buttons.on("click", function(d){
+              d3.select(".nb_legend").remove()
+              d3.select(".year_buttons")
+                .selectAll("div")
 
+              d3.select(this)
+                .transition()
+                .duration(500)
+              update(d.year, category);
+            });
+
+            //Use following functions to set the color saturation ranges for all years
+            //Note that the numbers by neighboorhod and category for all years must be included to demonstrate crime dynamics over time 
             function getMaxOfArray(numArray) {
               return Math.max.apply(null, numArray);
             }; 
@@ -303,12 +385,12 @@
               return +d.count
             }));
 
-            var countByNeighborhood = d3.map();
-
+            // Set color saturation bins based on 9 step scale
             var quantize = d3.scale.quantize()
                 .domain([0, max_crimes * 0.4])
                 .range(d3.range(9).map(function(i) { return "q" + Math.min(9,i) + "-9"; }));
 
+            // Color neighborhoods based on saturation scale
             var neighborhoods = svg.selectAll('path')
                                     .datum(function(d) { return {neighborhood: d3.select(this).attr('id')}; })
                                     .data(selected_category_crime, function(d){ return d.neighborhood; })
@@ -321,6 +403,7 @@
             //For number of bins in scale legend
             var bin_num = 9;
 
+            //Set range for scale legend
             function map_to_scale(bins, year){
               var scale_range = [];
               for(i = 0; i < bins; i++){
@@ -335,6 +418,7 @@
             
             d3.selectAll('.scale').remove()
 
+            //Display choropleth scale bar
             var scale_bar = d3.select("#chart")
                 .append("div")
                 .attr("class", "scale")
@@ -364,23 +448,9 @@
                 .attr('dy', '100em')
                 .attr('dx', '400em')
                 .style('text-anchor', 'start');
-
-            //-------Mapping full catalog of crimes as map points-------//  
-            // var circles = svg.selectAll('circle')
-            //     .data(selected_year_crime);
-
-            // circles.exit().remove();
-
-            // circles.enter()
-            //     .append('circle')
-            //     .attr("fill", "red")
-            //     .attr("r", 4)
-            //     .transition()
-            //     .duration(1000)
-            //     .attr("transform", function(d) {return "translate(" + projection([d.Lng,d.Lat]) + ")";})
-            //     .attr('opacity', 0.01);
           };
 
+          //Trigger animation with yearly updates of chart
           var year_idx = 0;
 
           var year_interval = setInterval(function() {
@@ -416,6 +486,8 @@
     </h4>
     <h5>
       Listed crime categories correspond to those used in the OpenOakland dataset. As background, the 'quality_of_life' class includes crimes related to somewhat more minor violations including 'curfew-loitering', vandalism, drug possession and incidents related to public liquor consumption. 'other' includes crimes not covered by categories in the featured list.
+
+      Note: homicides include reports of unexplained deaths and other events not necessarily ruled as murder.
   </div>
 </body>
 </html>
