@@ -7,7 +7,12 @@ The chart's neighborhoods are as defined in the GeoJson files kindly shared by M
 
 The chart incorporates a 'martini-glass' structure, with an initial author-driven narrative highlighted by changes in color saturation for each neighborhood corresponding to crime report frequency from 2007 to 2014. Once the chart animation reaches the most recent year in the data set, the user is free to construct his or her own narratives, and explore changes between various years for any given crime category. Similarly the user can compare neighborhood crime rates by hovering on any given neighborhood and seeing the number of incidents recorded for that type of crime in the currently selected year.
 
-After gathering user feedback, I perceived that viewers might not be seeing the general reduction in crime from 2007 to 2014, or have a clear perception of the absolute rates in particular neighborhoods. To address these concerns, I added code allowing the viewer to select neighborhoods on mouseover and reveal exact crime incident counts for the neighborhood and category in a given year. Furthermore, I chose to highlight the first and last year buttons with more saturated backgrounds, as a way of 'nudging' users to toggle between these years and see the massive general drop in crime rates for the whole period.
+I chose to illustrate Oakland crime dynamics with an interactive chroropleth for its ability to preserve nuances from the dataset while still clearly conveying the primary conclusion that aggregate crime rates have significantly fallen in Oakland over the last few years.
+In the choropleth, the viewer can see the substantial variation in crime frequency by geography within Oakland, as well as the persistently elevated crime rates in the busy downtown neighborhood, while simultaneously perceiving a substantial reduction in overall crime through the initial animation and toggling year selector boxes. While the aggregate reduction in crime over time could have been visible through a line graph, this would have also obscured underlying components of the trend, and restricted the viewer's ability to explore deeper insights from the dataset, including crime rates' geographical distribution.
+
+After gathering user feedback on my initial visualization code (included in the [gist here](http://bl.ocks.org/burnssa/raw/d8e3eb30ae1a081bde39/) ), I perceived that viewers might not be seeing the general reduction in crime from 2007 to 2014, or have a clear perception of the absolute rates in particular neighborhoods. To address these concerns, I added code allowing the viewer to select neighborhoods on mouseover and reveal exact crime incident counts for the neighborhood and category in a given year. Furthermore, I chose to highlight the first and last year buttons with more saturated backgrounds, as a way of 'nudging' users to toggle between these years and see the massive general drop in crime rates for the whole period. I also added references to the bottom of the chart to address specific user questions about data sources and categories. 
+
+After a second round of feedback, I updated the annual selector buttons to show widths corresponding to the total number of incidents in the given year (for any selected category). With this additional visual cue, the broad decline in crime over the years - in every major category - is even more readily apparent to the viewer.
 
 ##Feedback
 
@@ -59,7 +64,7 @@ After gathering user feedback, I perceived that viewers might not be seeing the 
 	*	Need to know what crime types are included in 'Other'
 
 
-#### Post-feedback updates
+####Post-feedback updates
 
 After collecting reviewer feedback, I made the following changes to the visualization:
 * Included ability to highlight specific neighborhoods with mouseover 
@@ -70,50 +75,50 @@ After collecting reviewer feedback, I made the following changes to the visualiz
 * Lightened saturation of buttons for interim years (between 2007 and 2014), guiding users to toggle between end and beginning years to see stark difference in period crime rates
 
 
-##Resources
-http://bl.ocks.org/mbostock/4060606
-http://alignedleft.com/tutorials/d3/using-your-data
-http://synthesis.sbecker.net/articles/2012/07/09/learning-d3-part-2
-http://www.visualisingdata.com/references/
-https://github.com/PMSI-AlignAlytics/dimple/wiki
-http://stackoverflow.com/questions/25798096/how-to-add-data-labels-to-dimple-js-bar-charts
-http://stackoverflow.com/questions/18558045/dimple-js-add-data-labels-to-each-bar-of-the-bar-chart
-http://openrefine.org/
-http://datajournalismhandbook.org/1.0/en/getting_data_0.html
-http://datajournalismhandbook.org/1.0/en/getting_data_3.html
-http://bost.ocks.org/mike/join/
-https://www.dashingd3js.com/d3js-axes
-http://ben.balter.com/2013/06/26/how-to-convert-shapefiles-to-geojson-for-use-on-github/
-http://ogre.adc4gis.com/
-http://geojson.io/#map=2/20.0/0.0
-https://github.com/mbostock/d3/wiki/Arrays#-nest
-http://bl.ocks.org/phoebebright/raw/3176159/
-http://www.jeromecukier.net/blog/2012/07/16/animations-and-transitions/
-https://www.dashingd3js.com/svg-paths-and-d3js
-http://javascriptissexy.com/understand-javascripts-this-with-clarity-and-master-it/
-http://tomhicks.github.io/code/2014/08/11/some-of-this.html
-http://bost.ocks.org/mike/bubble-map/
-http://bost.ocks.org/mike/example/
-http://blog.newtonlabs.io/post/21964404793/positioning-and-scaling-maps-in-d3
-http://stackoverflow.com/questions/28141812/d3-geo-responsive-frame-given-a-geojson-object/28142611#28142611
-http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object/14691788#14691788
-http://stackoverflow.com/questions/20987535/plotting-points-on-a-map-with-d3
-http://stackoverflow.com/questions/21743362/d3-js-reading-lat-long-coordinates-from-csv-into-google-map
-http://jsfiddle.net/Vjxpr/
-http://madewithenvy.com/ecosystem/articles/2015/local-maps-with-canvas-d3/
-http://www.digital-geography.com/d3-geodata-basics-a-map-overlay-can-have-many-faces/#.VndH9horKu4
-http://stackoverflow.com/questions/27543124/d3-jsmaps-svg-elements-not-appearing-when-adding-them-on-top-of-existing-svg-e
-http://stackoverflow.com/questions/1055367/how-can-i-overlay-svg-diagrams-on-google-maps
-https://developers.google.com/maps/documentation/javascript/3.exp/reference
-http://vitalflux.com/learn-r-append-rows-data-frame/
-http://gis.stackexchange.com/questions/79215/determine-if-point-is-within-an-irregular-polygon-using-python
-http://www.mhermans.net/geojson-shapely-geocoding.html
-http://igorsobreira.com/2010/09/16/difference-between-one-underline-and-two-underlines-in-python.html
-http://stackoverflow.com/questions/28297679/affective-method-of-handling-colour-on-dynamic-choropleth-legend-in-d3
-http://stackoverflow.com/questions/21323220/d3-change-elements-based-on-two-different-datasets
-http://stackoverflow.com/questions/17376626/keeping-order-in-d3-data
-http://d3js.org/
-http://stackoverflow.com/questions/20550840/how-to-get-quantize-values
-http://stackoverflow.com/questions/14525572/how-to-display-property-text-on-mouseover-in-d3-map
-http://stackoverflow.com/questions/21193305/javascript-d3-conditional-format-for-label
-http://bl.ocks.org/WilliamQLiu/292ef433e312ac69ef14
+##Resources and references
+- http://bl.ocks.org/mbostock/4060606
+- http://alignedleft.com/tutorials/d3/using-your-data
+- http://synthesis.sbecker.net/articles/2012/07/09/learning-d3-part-2
+- http://www.visualisingdata.com/references/
+- https://github.com/PMSI-AlignAlytics/dimple/wiki
+- http://stackoverflow.com/questions/25798096/how-to-add-data-labels-to-dimple-js-bar-charts
+- http://stackoverflow.com/questions/18558045/dimple-js-add-data-labels-to-each-bar-of-the-bar-chart
+- http://openrefine.org/
+- http://datajournalismhandbook.org/1.0/en/getting_data_0.html
+- http://datajournalismhandbook.org/1.0/en/getting_data_3.html
+- http://bost.ocks.org/mike/join/
+- https://www.dashingd3js.com/d3js-axes
+- http://ben.balter.com/2013/06/26/how-to-convert-shapefiles-to-geojson-for-use-on-github/
+- http://ogre.adc4gis.com/
+- http://geojson.io/#map=2/20.0/0.0
+- https://github.com/mbostock/d3/wiki/Arrays#-nest
+- http://bl.ocks.org/phoebebright/raw/3176159/
+- http://www.jeromecukier.net/blog/2012/07/16/animations-and-transitions/
+- https://www.dashingd3js.com/svg-paths-and-d3js
+- http://javascriptissexy.com/understand-javascripts-this-with-clarity-and-master-it/
+- http://tomhicks.github.io/code/2014/08/11/some-of-this.html
+- http://bost.ocks.org/mike/bubble-map/
+- http://bost.ocks.org/mike/example/
+- http://blog.newtonlabs.io/post/21964404793/positioning-and-scaling-maps-in-d3
+- http://stackoverflow.com/questions/28141812/d3-geo-responsive-frame-given-a-geojson-object/28142611#28142611
+- http://stackoverflow.com/questions/14492284/center-a-map-in-d3-given-a-geojson-object/14691788#14691788
+- http://stackoverflow.com/questions/20987535/plotting-points-on-a-map-with-d3
+- http://stackoverflow.com/questions/21743362/d3-js-reading-lat-long-coordinates-from-csv-into-google-map
+- http://jsfiddle.net/Vjxpr/
+- http://madewithenvy.com/ecosystem/articles/2015/local-maps-with-canvas-d3/
+- http://www.digital-geography.com/d3-geodata-basics-a-map-overlay-can-have-many-faces/#.VndH9horKu4
+- http://stackoverflow.com/questions/27543124/d3-jsmaps-svg-elements-not-appearing-when-adding-them-on-top-of-existing-svg-e
+- http://stackoverflow.com/questions/1055367/how-can-i-overlay-svg-diagrams-on-google-maps
+- https://developers.google.com/maps/documentation/javascript/3.exp/reference
+- http://vitalflux.com/learn-r-append-rows-data-frame/
+- http://gis.stackexchange.com/questions/79215/determine-if-point-is-within-an-irregular-polygon-using-python
+- http://www.mhermans.net/geojson-shapely-geocoding.html
+- http://igorsobreira.com/2010/09/16/difference-between-one-underline-and-two-underlines-in-python.html
+- http://stackoverflow.com/questions/28297679/affective-method-of-handling-colour-on-dynamic-choropleth-legend-in-d3
+- http://stackoverflow.com/questions/21323220/d3-change-elements-based-on-two-different-datasets
+- http://stackoverflow.com/questions/17376626/keeping-order-in-d3-data
+- http://d3js.org/
+- http://stackoverflow.com/questions/20550840/how-to-get-quantize-values
+- http://stackoverflow.com/questions/14525572/how-to-display-property-text-on-mouseover-in-d3-map
+- http://stackoverflow.com/questions/21193305/javascript-d3-conditional-format-for-label
+- http://bl.ocks.org/WilliamQLiu/292ef433e312ac69ef14
