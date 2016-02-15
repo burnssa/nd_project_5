@@ -97,6 +97,7 @@
       }
 
       /*Choropleth scale taken from example here: http://bl.ocks.org/mbostock/4060606*/
+      .q0-0 { fill:rgb(255,255,255); }
       .q0-9 { fill:rgb(247,251,255); }
       .q1-9 { fill:rgb(222,235,247); }
       .q2-9 { fill:rgb(198,219,239); }
@@ -170,7 +171,7 @@
 
                     function text_label(d){ 
                       if(d.count == undefined){
-                        return "No Data";
+                        return "No Crime Data for </br> " + d.neighborhood;
                       }else{
                         return d.neighborhood + " - </br> " + d.count + " " + pluralized_incidents(d) + " in " + d.year;
                       };
@@ -338,7 +339,6 @@
                 max_label.append("text")          
                             .text(formatter(category_max))
                             .style("text-align", "right");
-
             
             //remove to avoid repitition on update
             d3.select('.year_instructions').remove()
@@ -387,6 +387,9 @@
             var quantize = d3.scale.quantize()
                 .domain([0, max_crimes * 0.4])
                 .range(d3.range(9).map(function(i) { return "q" + Math.min(9,i) + "-9"; }));
+
+            // Reset all neighborhoods' fill to white by default, preventing errors where neighborhood update retains previous fill
+            svg.selectAll('path').attr("class", 'q0-0')
 
             // Color neighborhoods based on saturation scale
             var neighborhoods = svg.selectAll('path')
