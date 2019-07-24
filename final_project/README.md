@@ -1,9 +1,10 @@
-##Summary 
+## Summary 
+
 From 2007 to 2014 the number of reported crimes fell substantially in Oakland, California - a city commonly associated with violence and crime. This choropleth highlights how Oakland's crime rate evolved over this period, in each of the city's neighborhoods, for some of the most common types of crime. Through the broad 'lightening' of most neighborhoods across the city (aside from a 'darker' spike in 2012), the viewer can grasp the general decline in crime rates, while still being aware of crime's geographical distribution, and the uneven crime dynamics across neighborhoods, via the map's varied saturation.
 
 The chart's neighborhoods are as defined in the GeoJson files kindly shared by Max Ogden [here](https://github.com/maxogden/oakland-boundaries-geojson). Crime incidents are taken from the [OpenOakland](www.openoakland.org) [database here](http://data.openoakland.org/dataset/crime-reports/resource/49bee847-a9b7-4e71-84d8-3f4cabb26cf0).
 
-##Design
+## Design
 
 The chart incorporates a 'martini-glass' structure, with an initial author-driven narrative highlighted by changes in color saturation for each neighborhood corresponding to crime report frequency from 2007 to 2014. Once the chart animation reaches the most recent year in the data set, the user is free to construct his or her own narratives, and explore changes between various years for any given crime category. Similarly the user can compare neighborhood crime rates by hovering on any given neighborhood and seeing the number of incidents recorded for that type of crime in the currently selected year.
 
@@ -14,9 +15,9 @@ After gathering user feedback on my initial visualization code (included in the 
 
 After a second round of feedback, I updated the annual selector buttons to show widths corresponding to the total number of incidents in the given year (for any selected category). With this additional visual cue, the broad decline in crime over the years - in every major category - is even more readily apparent to the viewer.
 
-##Feedback
+## Feedback
 
-###Reviewer #1:
+### Reviewer #1:
 
 * What do you notice in the visualization? 
 	* Crime has declined over time in all categories and most neighborhoods, but downtown Oakland. While crime was declining through 2012, there was a spike in 2012 and crime has been dropping again since. 
@@ -29,7 +30,7 @@ After a second round of feedback, I updated the annual selector buttons to show 
 * Is there something you don’t understand in the graphic? 
 	* Which neighborhoods it refers to; it would useful to see the names of the different neighborhoods. 
 
-###Reviewer #2
+### Reviewer #2
 
 * What do you notice in the visualization?
 	* Some neighborhoods are “hotspots”.  The pattern changes with time.
@@ -43,7 +44,7 @@ After a second round of feedback, I updated the annual selector buttons to show 
 * Is there something you don’t understand in the graphic?
 	* I think a key or footnote explaining how the statistics are measured and collected (e.g. “quality of life”) would help.
 
-###Reviewer #3
+### Reviewer #3
 
 * What do you notice in the visualization?
 	* Crime is concentrated in pockets
@@ -64,7 +65,7 @@ After a second round of feedback, I updated the annual selector buttons to show 
 	*	Need to know what crime types are included in 'Other'
 
 
-####Post-feedback updates
+#### Post-feedback updates
 
 After collecting reviewer feedback, I made the following changes to the visualization:
 * Included ability to highlight specific neighborhoods with mouseover 
